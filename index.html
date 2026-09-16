@@ -1,0 +1,2368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>혁성에게 물어보세요</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+
+    background: #101014;
+
+    color: #eeeeee;
+
+    font-family:
+        "Noto Sans KR",
+        "Malgun Gothic",
+        sans-serif;
+}
+
+
+/* =========================
+   화면
+========================= */
+
+.screen {
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    display: none;
+
+    padding: 55px;
+}
+
+.screen.active {
+
+    display: flex;
+}
+
+
+/* =========================
+   질문 화면
+========================= */
+
+#askScreen {
+
+    justify-content: center;
+
+    align-items: center;
+}
+
+
+/* =========================
+   메인 컨테이너
+========================= */
+
+.container {
+
+    position: relative;
+
+    width: 88%;
+
+    max-width: 1150px;
+
+    min-height: 78vh;
+
+    background: #17171c;
+
+    border: 1px solid #303039;
+
+    padding: 65px 80px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.45);
+
+    transition:
+        border-color 0.4s,
+        box-shadow 0.4s;
+}
+
+
+/* 위쪽 선 */
+
+.container::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -1px;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 3px;
+
+    background: #7764a8;
+
+}
+
+
+/* =========================
+   질문 중 효과
+========================= */
+
+.container.asking {
+
+    border-color: #62527e;
+
+    box-shadow:
+        0 20px 70px rgba(0,0,0,0.65),
+        0 0 35px rgba(119,100,168,0.08);
+}
+
+
+.container.asking::before {
+
+    animation:
+        topLinePulse 1.5s infinite;
+}
+
+
+@keyframes topLinePulse {
+
+    0% {
+        opacity: 0.35;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.35;
+    }
+}
+
+
+/* =========================
+   상단 버튼
+========================= */
+
+.topButtons {
+
+    position: absolute;
+
+    top: 22px;
+
+    right: 25px;
+
+    display: flex;
+
+    gap: 10px;
+}
+
+
+.topButton {
+
+    background: #202027;
+
+    color: #aaaab4;
+
+    border: 1px solid #383841;
+
+    padding: 9px 14px;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+}
+
+
+.topButton:hover {
+
+    background: #292932;
+
+    color: #ffffff;
+
+    border-color: #5b5667;
+}
+
+
+/* =========================
+   제목
+========================= */
+
+.title {
+
+    font-size: clamp(30px, 4vw, 50px);
+
+    font-weight: 700;
+
+    letter-spacing: -2px;
+
+    margin-bottom: 12px;
+
+    text-align: center;
+}
+
+
+.subtitle {
+
+    color: #888891;
+
+    font-size: 16px;
+
+    letter-spacing: 4px;
+
+    margin-bottom: 55px;
+
+    text-align: center;
+}
+
+
+/* =========================
+   결과 영역
+========================= */
+
+.resultBox {
+
+    position: relative;
+
+    width: 100%;
+
+    min-height: 190px;
+
+    background: #121216;
+
+    border: 1px solid #34343d;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 35px;
+
+    overflow: hidden;
+
+    margin-bottom: 30px;
+}
+
+
+/* 스캔 효과 */
+
+.resultBox::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: -100%;
+
+    top: 0;
+
+    width: 60%;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(130,110,170,0.07),
+            transparent
+        );
+
+    pointer-events: none;
+}
+
+
+.container.asking .resultBox::after {
+
+    animation: scan 1.8s infinite;
+}
+
+
+@keyframes scan {
+
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 150%;
+    }
+}
+
+
+/* =========================
+   REVELATION
+========================= */
+
+.label {
+
+    font-size: 11px;
+
+    letter-spacing: 4px;
+
+    color: #75688b;
+
+    margin-bottom: 20px;
+}
+
+
+.container.asking .label {
+
+    animation: revelationPulse 1.2s infinite;
+}
+
+
+@keyframes revelationPulse {
+
+    0% {
+        opacity: 0.45;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.45;
+    }
+}
+
+
+/* =========================
+   결과 글자
+========================= */
+
+#result {
+
+    font-size: clamp(18px, 2.2vw, 27px);
+
+    font-weight: 500;
+
+    text-align: center;
+
+    line-height: 1.7;
+
+    color: #e9e9ed;
+
+    min-height: 45px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+#result.waiting {
+
+    color: #888892;
+
+    animation: waitingText 1.2s infinite;
+}
+
+
+@keyframes waitingText {
+
+    0% {
+        opacity: 0.35;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.35;
+    }
+}
+
+
+#result.revealed {
+
+    animation: revealText 0.8s ease;
+}
+
+
+@keyframes revealText {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            translateY(8px);
+
+        filter: blur(8px);
+    }
+
+    100% {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+        filter: blur(0);
+    }
+}
+
+
+/* =========================
+   질문 버튼
+========================= */
+
+.askButton {
+
+    width: 260px;
+
+    padding: 17px 25px;
+
+    background: #292333;
+
+    color: #eeeeee;
+
+    border: 1px solid #55476d;
+
+    font-size: 15px;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+}
+
+
+.askButton:hover {
+
+    background: #352c43;
+
+    border-color: #76638f;
+}
+
+
+.askButton:disabled {
+
+    cursor: not-allowed;
+
+    opacity: 0.55;
+}
+
+
+/* =========================
+   상태 메시지
+========================= */
+
+#statusMessage {
+
+    height: 20px;
+
+    margin-top: 18px;
+
+    color: #777780;
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+    opacity: 0;
+
+    transition: opacity 0.4s;
+}
+
+
+#statusMessage.active {
+
+    opacity: 1;
+}
+
+
+/* =========================
+   진리 개수
+========================= */
+
+.count {
+
+    margin-top: 25px;
+
+    color: #606069;
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   관리 화면
+========================= */
+
+#manageScreen {
+
+    justify-content: center;
+
+    align-items: center;
+}
+
+
+.manageContainer {
+
+    width: 90%;
+
+    max-width: 1100px;
+
+    min-height: 80vh;
+
+    background: #17171c;
+
+    border: 1px solid #303039;
+
+    padding: 50px;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.45);
+
+    position: relative;
+}
+
+
+.manageContainer::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -1px;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 3px;
+
+    background: #7764a8;
+}
+
+
+.manageTitle {
+
+    font-size: 30px;
+
+    font-weight: 700;
+
+    margin-bottom: 10px;
+}
+
+
+.manageDescription {
+
+    color: #777780;
+
+    font-size: 13px;
+
+    margin-bottom: 35px;
+}
+
+
+/* =========================
+   추가 영역
+========================= */
+
+.addArea {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-bottom: 35px;
+}
+
+
+#newTruth {
+
+    flex: 1;
+
+    background: #111116;
+
+    color: #eeeeee;
+
+    border: 1px solid #383841;
+
+    padding: 15px;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+
+#newTruth:focus {
+
+    border-color: #62527e;
+}
+
+
+.addButton {
+
+    background: #292333;
+
+    color: #eeeeee;
+
+    border: 1px solid #55476d;
+
+    padding: 0 25px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+
+.addButton:hover {
+
+    background: #352c43;
+}
+
+
+/* =========================
+   진리 목록
+========================= */
+
+.truthList {
+
+    max-height: 48vh;
+
+    overflow-y: auto;
+
+    border-top: 1px solid #303039;
+}
+
+
+.truthItem {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 15px 5px;
+
+    border-bottom: 1px solid #292930;
+}
+
+
+.truthNumber {
+
+    width: 35px;
+
+    color: #625b6d;
+
+    font-size: 12px;
+}
+
+
+.truthText {
+
+    flex: 1;
+
+    color: #d7d7dc;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+.editButton,
+.deleteButton {
+
+    border: 1px solid #3b3b44;
+
+    background: #202027;
+
+    color: #aaaab4;
+
+    padding: 7px 12px;
+
+    cursor: pointer;
+
+    font-size: 12px;
+}
+
+
+.editButton:hover {
+
+    background: #292932;
+
+    color: #ffffff;
+}
+
+
+.deleteButton:hover {
+
+    background: #30252b;
+
+    color: #ffffff;
+
+    border-color: #59444d;
+}
+
+
+/* =========================
+   돌아가기
+========================= */
+
+.backButton {
+
+    margin-top: 30px;
+
+    background: transparent;
+
+    color: #85858f;
+
+    border: 1px solid #3a3a42;
+
+    padding: 11px 20px;
+
+    cursor: pointer;
+}
+
+
+.backButton:hover {
+
+    color: #ffffff;
+
+    border-color: #666670;
+}
+
+
+/* =========================
+   비밀번호 화면
+========================= */
+
+#passwordScreen {
+
+    justify-content: center;
+
+    align-items: center;
+}
+
+
+.passwordContainer {
+
+    width: 90%;
+
+    max-width: 500px;
+
+    min-height: 430px;
+
+    background: #17171c;
+
+    border: 1px solid #303039;
+
+    padding: 55px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    position: relative;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.55);
+}
+
+
+.passwordContainer::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -1px;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 3px;
+
+    background: #7764a8;
+}
+
+
+.passwordIcon {
+
+    font-size: 35px;
+
+    margin-bottom: 20px;
+
+    opacity: 0.7;
+}
+
+
+.passwordTitle {
+
+    font-size: 25px;
+
+    font-weight: 700;
+
+    margin-bottom: 10px;
+}
+
+
+.passwordDescription {
+
+    color: #777780;
+
+    font-size: 13px;
+
+    margin-bottom: 30px;
+
+    text-align: center;
+
+    line-height: 1.7;
+}
+
+
+#developerPassword {
+
+    width: 100%;
+
+    background: #111116;
+
+    color: #eeeeee;
+
+    border: 1px solid #383841;
+
+    padding: 15px;
+
+    font-size: 15px;
+
+    outline: none;
+
+    text-align: center;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 12px;
+}
+
+
+#developerPassword:focus {
+
+    border-color: #62527e;
+}
+
+
+.passwordButton {
+
+    width: 100%;
+
+    padding: 14px;
+
+    background: #292333;
+
+    color: #eeeeee;
+
+    border: 1px solid #55476d;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    margin-top: 5px;
+}
+
+
+.passwordButton:hover {
+
+    background: #352c43;
+}
+
+
+.passwordError {
+
+    height: 20px;
+
+    margin-top: 12px;
+
+    color: #b37b86;
+
+    font-size: 12px;
+
+    opacity: 0;
+}
+
+
+.passwordError.active {
+
+    opacity: 1;
+}
+
+
+/* =========================
+   수정 모달
+========================= */
+
+.modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.75);
+
+    display: none;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 1000;
+}
+
+
+.modal.active {
+
+    display: flex;
+}
+
+
+.modalContent {
+
+    width: 90%;
+
+    max-width: 550px;
+
+    background: #19191f;
+
+    border: 1px solid #3a3a43;
+
+    padding: 35px;
+
+    box-shadow:
+        0 20px 80px rgba(0,0,0,0.7);
+}
+
+
+.modalTitle {
+
+    font-size: 20px;
+
+    margin-bottom: 20px;
+}
+
+
+#editInput {
+
+    width: 100%;
+
+    min-height: 120px;
+
+    resize: vertical;
+
+    background: #111116;
+
+    color: #eeeeee;
+
+    border: 1px solid #383841;
+
+    padding: 15px;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+
+.modalButtons {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+
+.modalButtons button {
+
+    padding: 10px 18px;
+
+    cursor: pointer;
+
+    border: 1px solid #3c3c45;
+
+    background: #222229;
+
+    color: #dddddd;
+}
+
+
+.modalButtons .save {
+
+    background: #292333;
+
+    border-color: #55476d;
+}
+
+
+/* =========================
+   모바일
+========================= */
+
+@media (max-width: 700px) {
+
+    .screen {
+
+        padding: 20px;
+    }
+
+
+    .container {
+
+        width: 100%;
+
+        min-height: 90vh;
+
+        padding: 55px 25px 40px;
+    }
+
+
+    .topButtons {
+
+        top: 15px;
+
+        right: 15px;
+    }
+
+
+    .topButton {
+
+        padding: 7px 9px;
+
+        font-size: 10px;
+    }
+
+
+    .subtitle {
+
+        margin-bottom: 35px;
+
+        font-size: 13px;
+    }
+
+
+    .resultBox {
+
+        min-height: 180px;
+
+        padding: 25px 15px;
+    }
+
+
+    .askButton {
+
+        width: 100%;
+    }
+
+
+    .manageContainer {
+
+        width: 100%;
+
+        padding: 35px 20px;
+    }
+
+
+    .addArea {
+
+        flex-direction: column;
+    }
+
+
+    .addButton {
+
+        height: 45px;
+    }
+
+
+    .truthItem {
+
+        flex-wrap: wrap;
+    }
+
+
+    .truthNumber {
+
+        width: 25px;
+    }
+
+
+    .truthText {
+
+        min-width: calc(100% - 40px);
+    }
+
+
+    .editButton,
+    .deleteButton {
+
+        margin-top: 5px;
+    }
+
+
+    .passwordContainer {
+
+        width: 100%;
+
+        padding: 40px 25px;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     질문 화면
+========================= -->
+
+<section
+    id="askScreen"
+    class="screen active"
+>
+
+    <div
+        class="container"
+        id="mainContainer"
+    >
+
+        <div class="topButtons">
+
+            <button
+                class="topButton"
+                onclick="openPasswordScreen()"
+            >
+                진리 추가 또는 수정하기
+            </button>
+
+            <button
+                class="topButton"
+                id="fullscreenButton"
+                onclick="toggleFullscreen()"
+            >
+                전체화면
+            </button>
+
+        </div>
+
+
+        <div class="title">
+            혁성에게 물어보세요
+        </div>
+
+
+        <div class="subtitle">
+            진리를 알려드릴 테니
+        </div>
+
+
+        <div class="resultBox">
+
+            <div class="label">
+                REVELATION
+            </div>
+
+            <div id="result">
+                고민이 있다면 질문을 던지십시오.
+            </div>
+
+        </div>
+
+
+        <button
+            class="askButton"
+            id="askButton"
+            onclick="askHyukseong()"
+        >
+            혁성에게 묻기
+        </button>
+
+
+        <div
+            id="statusMessage"
+        ></div>
+
+
+        <div
+            class="count"
+            id="truthCount"
+        ></div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================
+     비밀번호 화면
+========================= -->
+
+<section
+    id="passwordScreen"
+    class="screen"
+>
+
+    <div class="passwordContainer">
+
+        <div class="passwordIcon">
+            ◆
+        </div>
+
+        <div class="passwordTitle">
+            개발자 인증
+        </div>
+
+        <div class="passwordDescription">
+
+            진리 관리 화면에 접근하려면<br>
+            개발자 비밀번호를 입력하십시오.
+
+        </div>
+
+
+        <input
+            type="password"
+            id="developerPassword"
+            placeholder="개발자 비밀번호"
+            autocomplete="off"
+            onkeydown="handlePasswordKey(event)"
+        >
+
+
+        <button
+            class="passwordButton"
+            onclick="checkDeveloperPassword()"
+        >
+            인증하고 들어가기
+        </button>
+
+
+        <div
+            id="passwordError"
+            class="passwordError"
+        >
+            비밀번호가 올바르지 않습니다.
+        </div>
+
+
+        <button
+            class="backButton"
+            onclick="backToAskFromPassword()"
+        >
+            돌아가기
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================
+     관리 화면
+========================= -->
+
+<section
+    id="manageScreen"
+    class="screen"
+>
+
+    <div class="manageContainer">
+
+        <div class="manageTitle">
+            진리 관리
+        </div>
+
+        <div class="manageDescription">
+            혁성이 내려줄 진리를 추가하거나 수정하고 삭제할 수 있습니다.
+        </div>
+
+
+        <div class="addArea">
+
+            <input
+                type="text"
+                id="newTruth"
+                placeholder="새로운 진리를 입력하십시오."
+                onkeydown="handleNewTruthKey(event)"
+            >
+
+            <button
+                class="addButton"
+                onclick="addTruth()"
+            >
+                진리 추가
+            </button>
+
+        </div>
+
+
+        <div
+            class="truthList"
+            id="truthList"
+        ></div>
+
+
+        <button
+            class="backButton"
+            onclick="backToAsk()"
+        >
+            질문 화면으로 돌아가기
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================
+     수정 모달
+========================= -->
+
+<div
+    class="modal"
+    id="editModal"
+>
+
+    <div class="modalContent">
+
+        <div class="modalTitle">
+            진리 수정
+        </div>
+
+
+        <textarea
+            id="editInput"
+            placeholder="진리를 입력하십시오."
+        ></textarea>
+
+
+        <div class="modalButtons">
+
+            <button
+                onclick="closeEditModal()"
+            >
+                취소
+            </button>
+
+            <button
+                class="save"
+                onclick="saveEditedTruth()"
+            >
+                저장
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+/* =========================
+   기본 진리 100개
+========================= */
+
+const defaultSentences = [
+
+"고민하지 말고 바로 해",
+"한번 더 생각해",
+"오늘은 자중해",
+"하지 마",
+"바로 해",
+"네 생각이 맞는 것 같아",
+"조금 더 기다려",
+"지금이 아니면 늦을 수도 있어",
+"오늘은 움직여",
+"일단 시작해",
+"멈추고 생각해",
+"너무 깊게 생각하지 마",
+"한 걸음만 내디뎌",
+"지금은 포기하지 마",
+"그 선택을 믿어",
+"다시 한번 확인해",
+"천천히 결정해",
+"지금은 때가 아니야",
+"네가 원하는 대로 해",
+"다른 방법을 찾아봐",
+"한번 부딪혀봐",
+"실패해도 괜찮아",
+"지금 할 수 있는 것부터 해",
+"오늘은 쉬어",
+"내일 다시 생각해",
+"그건 하지 않는 게 좋아",
+"조금 더 알아보고 결정해",
+"네 직감을 믿어",
+"감정이 가라앉은 뒤 결정해",
+"너무 서두르지 마",
+"이번에는 네가 먼저 움직여",
+"기회가 왔다면 잡아",
+"놓아줄 때가 됐어",
+"한번 놓고 생각해봐",
+"답은 이미 알고 있을지도 몰라",
+"질문을 바꿔봐",
+"처음 생각으로 돌아가",
+"가장 단순한 방법을 선택해",
+"어려운 길이 항상 옳은 것은 아니야",
+"쉬운 길이라고 틀린 것도 아니야",
+"한번 시도해봐",
+"아직 결정하지 마",
+"지금은 기다려",
+"오늘 안에 결정해",
+"하루만 더 생각해",
+"너무 많은 의미를 부여하지 마",
+"그냥 해봐",
+"일단 해보고 판단해",
+"네가 책임질 수 있다면 해",
+"후회할 것 같다면 다시 생각해",
+"후회하지 않을 선택을 해",
+"남의 시선은 잠시 내려놔",
+"다른 사람의 답을 찾지 마",
+"네가 직접 결정해",
+"정말 원하는지 스스로 물어봐",
+"그게 정말 필요한가?",
+"왜 하려는지 생각해봐",
+"처음 목적을 잊지 마",
+"목표를 다시 확인해",
+"지금 필요한 건 용기야",
+"지금 필요한 건 인내야",
+"지금 필요한 건 휴식이야",
+"지금 필요한 건 냉정함이야",
+"지금 필요한 건 행동이야",
+"조금 물러서서 바라봐",
+"한 발 떨어져 생각해",
+"반대로 생각해봐",
+"최악의 경우를 생각해봐",
+"최선의 경우도 생각해봐",
+"결과보다 과정을 봐",
+"오늘의 감정으로 내일을 결정하지 마",
+"화가 났다면 지금은 결정하지 마",
+"기분이 좋다고 무조건 해서는 안 돼",
+"두려워도 해야 할 일이 있어",
+"두렵다면 이유부터 찾아봐",
+"확신이 없다면 확인해",
+"확신이 있다면 움직여",
+"한번 믿어봐",
+"의심이 든다면 멈춰",
+"계속 마음에 걸린다면 이유가 있어",
+"계속 생각난다면 한번 해봐",
+"이미 충분히 생각했어",
+"더 생각해도 답은 같을 거야",
+"답을 찾기보다 선택해",
+"완벽할 필요는 없어",
+"지금의 최선이면 충분해",
+"작게 시작해",
+"큰 결정을 작은 단계로 나눠",
+"한번만 더 도전해",
+"이번에는 다르게 해봐",
+"실수에서 답을 찾아",
+"틀렸다면 인정해",
+"맞다고 생각한다면 밀고 나가",
+"필요하다면 돌아가",
+"끝낼 때는 확실하게 끝내",
+"시작했다면 끝까지 가봐",
+"너 자신에게 솔직해져",
+"네가 원하는 것과 필요한 것을 구분해",
+"결정은 네가 내려",
+"답은 행동한 뒤에 보일 수도 있어"
+
+];
+
+
+/* =========================
+   개발자 비밀번호
+========================= */
+
+const DEVELOPER_PASSWORD =
+    "12341234sd@";
+
+
+/* =========================
+   데이터 버전
+========================= */
+
+const DATA_VERSION =
+    "100_truths_v2";
+
+
+/* =========================
+   localStorage 초기화
+========================= */
+
+const savedVersion =
+    localStorage.getItem(
+        "hyukseongTruthVersion"
+    );
+
+
+if (savedVersion !== DATA_VERSION) {
+
+    localStorage.setItem(
+        "hyukseongSentences",
+        JSON.stringify(defaultSentences)
+    );
+
+    localStorage.setItem(
+        "hyukseongTruthVersion",
+        DATA_VERSION
+    );
+}
+
+
+/* =========================
+   진리 불러오기
+========================= */
+
+let sentences =
+    JSON.parse(
+        localStorage.getItem(
+            "hyukseongSentences"
+        )
+    ) || [...defaultSentences];
+
+
+/* =========================
+   상태 변수
+========================= */
+
+let isAsking = false;
+
+let editingIndex = -1;
+
+
+/* =========================
+   저장
+========================= */
+
+function saveSentences() {
+
+    localStorage.setItem(
+        "hyukseongSentences",
+        JSON.stringify(sentences)
+    );
+
+}
+
+
+/* =========================
+   화면 전환
+========================= */
+
+function showScreen(screenId) {
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(screen => {
+
+            screen.classList.remove("active");
+
+        });
+
+
+    document
+        .getElementById(screenId)
+        .classList.add("active");
+}
+
+
+/* =========================
+   질문 화면
+========================= */
+
+function backToAsk() {
+
+    showScreen("askScreen");
+
+}
+
+
+/* =========================
+   비밀번호 화면 열기
+========================= */
+
+function openPasswordScreen() {
+
+    showScreen("passwordScreen");
+
+
+    const input =
+        document.getElementById(
+            "developerPassword"
+        );
+
+    const error =
+        document.getElementById(
+            "passwordError"
+        );
+
+
+    input.value = "";
+
+    error.classList.remove("active");
+
+
+    setTimeout(() => {
+
+        input.focus();
+
+    }, 100);
+
+}
+
+
+/* =========================
+   비밀번호 화면에서 돌아가기
+========================= */
+
+function backToAskFromPassword() {
+
+    showScreen("askScreen");
+
+}
+
+
+/* =========================
+   비밀번호 검사
+========================= */
+
+function checkDeveloperPassword() {
+
+    const input =
+        document.getElementById(
+            "developerPassword"
+        );
+
+    const error =
+        document.getElementById(
+            "passwordError"
+        );
+
+
+    if (
+        input.value ===
+        DEVELOPER_PASSWORD
+    ) {
+
+        error.classList.remove(
+            "active"
+        );
+
+        input.value = "";
+
+        showScreen("manageScreen");
+
+        renderTruths();
+
+        return;
+
+    }
+
+
+    /* 비밀번호 틀림 */
+
+    error.classList.add(
+        "active"
+    );
+
+    input.value = "";
+
+    input.focus();
+
+}
+
+
+/* =========================
+   엔터키로 비밀번호 확인
+========================= */
+
+function handlePasswordKey(event) {
+
+    if (
+        event.key === "Enter"
+    ) {
+
+        checkDeveloperPassword();
+
+    }
+
+}
+
+
+/* =========================
+   엔터키로 진리 추가
+========================= */
+
+function handleNewTruthKey(event) {
+
+    if (
+        event.key === "Enter"
+    ) {
+
+        addTruth();
+
+    }
+
+}
+
+
+/* =========================
+   진리 목록 출력
+========================= */
+
+function renderTruths() {
+
+    const list =
+        document.getElementById(
+            "truthList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    sentences.forEach(
+        (truth, index) => {
+
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+            item.className =
+                "truthItem";
+
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+            number.className =
+                "truthNumber";
+
+            number.textContent =
+                index + 1;
+
+
+            const text =
+                document.createElement(
+                    "div"
+                );
+
+            text.className =
+                "truthText";
+
+            text.textContent =
+                truth;
+
+
+            const editButton =
+                document.createElement(
+                    "button"
+                );
+
+            editButton.className =
+                "editButton";
+
+            editButton.textContent =
+                "수정";
+
+            editButton.onclick =
+                () => openEditModal(index);
+
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+            deleteButton.className =
+                "deleteButton";
+
+            deleteButton.textContent =
+                "삭제";
+
+            deleteButton.onclick =
+                () => deleteTruth(index);
+
+
+            item.appendChild(
+                number
+            );
+
+            item.appendChild(
+                text
+            );
+
+            item.appendChild(
+                editButton
+            );
+
+            item.appendChild(
+                deleteButton
+            );
+
+
+            list.appendChild(
+                item
+            );
+
+        }
+    );
+
+
+    updateCount();
+
+}
+
+
+/* =========================
+   진리 추가
+========================= */
+
+function addTruth() {
+
+    const input =
+        document.getElementById(
+            "newTruth"
+        );
+
+
+    const value =
+        input.value.trim();
+
+
+    if (!value) {
+
+        return;
+
+    }
+
+
+    sentences.push(value);
+
+
+    saveSentences();
+
+    input.value = "";
+
+    renderTruths();
+
+}
+
+
+/* =========================
+   진리 삭제
+========================= */
+
+function deleteTruth(index) {
+
+    if (
+        !confirm(
+            "이 진리를 삭제하시겠습니까?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    sentences.splice(
+        index,
+        1
+    );
+
+
+    saveSentences();
+
+    renderTruths();
+
+}
+
+
+/* =========================
+   수정 모달 열기
+========================= */
+
+function openEditModal(index) {
+
+    editingIndex = index;
+
+
+    const modal =
+        document.getElementById(
+            "editModal"
+        );
+
+    const input =
+        document.getElementById(
+            "editInput"
+        );
+
+
+    input.value =
+        sentences[index];
+
+
+    modal.classList.add(
+        "active"
+    );
+
+
+    setTimeout(() => {
+
+        input.focus();
+
+    }, 100);
+
+}
+
+
+/* =========================
+   수정 모달 닫기
+========================= */
+
+function closeEditModal() {
+
+    editingIndex = -1;
+
+
+    document
+        .getElementById(
+            "editModal"
+        )
+        .classList.remove(
+            "active"
+        );
+
+}
+
+
+/* =========================
+   수정 저장
+========================= */
+
+function saveEditedTruth() {
+
+    const input =
+        document.getElementById(
+            "editInput"
+        );
+
+
+    const value =
+        input.value.trim();
+
+
+    if (
+        editingIndex === -1 ||
+        !value
+    ) {
+
+        return;
+
+    }
+
+
+    sentences[
+        editingIndex
+    ] = value;
+
+
+    saveSentences();
+
+    closeEditModal();
+
+    renderTruths();
+
+}
+
+
+/* =========================
+   개수 업데이트
+========================= */
+
+function updateCount() {
+
+    document
+        .getElementById(
+            "truthCount"
+        )
+        .textContent =
+        `현재 ${sentences.length}개의 진리가 준비되어 있습니다.`;
+
+}
+
+
+/* =========================
+   혁성에게 묻기
+   총 6초
+========================= */
+
+function askHyukseong() {
+
+    if (isAsking) {
+
+        return;
+
+    }
+
+
+    if (sentences.length === 0) {
+
+        document
+            .getElementById(
+                "result"
+            )
+            .textContent =
+            "등록된 진리가 없습니다.";
+
+        return;
+
+    }
+
+
+    isAsking = true;
+
+
+    const container =
+        document.getElementById(
+            "mainContainer"
+        );
+
+
+    const result =
+        document.getElementById(
+            "result"
+        );
+
+
+    const button =
+        document.getElementById(
+            "askButton"
+        );
+
+
+    const status =
+        document.getElementById(
+            "statusMessage"
+        );
+
+
+    /* =========================
+       질문 시작
+    ========================= */
+
+    container.classList.add(
+        "asking"
+    );
+
+
+    button.disabled = true;
+
+
+    button.textContent =
+        "혁성이 응답하고 있습니다";
+
+
+    result.classList.remove(
+        "revealed"
+    );
+
+
+    result.classList.add(
+        "waiting"
+    );
+
+
+    result.textContent =
+        "혁성에게 묻는 중";
+
+
+    status.classList.add(
+        "active"
+    );
+
+
+    status.textContent =
+        "진리를 탐색하고 있습니다";
+
+
+    /* =========================
+       1.6초
+    ========================= */
+
+    setTimeout(() => {
+
+        result.textContent =
+            "응답을 준비하고 있습니다";
+
+
+        status.textContent =
+            "응답이 내려옵니다";
+
+    }, 1600);
+
+
+    /* =========================
+       3.2초
+    ========================= */
+
+    setTimeout(() => {
+
+        result.textContent =
+            "잠시 기다리십시오";
+
+
+        status.textContent =
+            "혁성의 뜻을 기다리는 중";
+
+    }, 3200);
+
+
+    /* =========================
+       4.6초
+    ========================= */
+
+    setTimeout(() => {
+
+        result.textContent =
+            "진리가 결정되었습니다";
+
+
+        status.textContent =
+            "REVELATION";
+
+    }, 4600);
+
+
+    /* =========================
+       6초 후 진리 공개
+    ========================= */
+
+    setTimeout(() => {
+
+        const randomIndex =
+            Math.floor(
+                Math.random() *
+                sentences.length
+            );
+
+
+        const selectedTruth =
+            sentences[randomIndex];
+
+
+        result.classList.remove(
+            "waiting"
+        );
+
+
+        result.classList.add(
+            "revealed"
+        );
+
+
+        result.textContent =
+            selectedTruth;
+
+
+        container.classList.remove(
+            "asking"
+        );
+
+
+        button.disabled = false;
+
+
+        button.textContent =
+            "혁성에게 묻기";
+
+
+        status.classList.remove(
+            "active"
+        );
+
+
+        isAsking = false;
+
+    }, 6000);
+
+}
+
+
+/* =========================
+   전체화면
+========================= */
+
+function toggleFullscreen() {
+
+    const button =
+        document.getElementById(
+            "fullscreenButton"
+        );
+
+
+    if (
+        !document.fullscreenElement
+    ) {
+
+        document
+            .documentElement
+            .requestFullscreen()
+            .then(() => {
+
+                button.textContent =
+                    "전체화면 종료";
+
+            })
+            .catch(() => {});
+
+
+    } else {
+
+        document
+            .exitFullscreen()
+            .then(() => {
+
+                button.textContent =
+                    "전체화면";
+
+            })
+            .catch(() => {});
+
+    }
+
+}
+
+
+/* =========================
+   전체화면 상태 감지
+========================= */
+
+document.addEventListener(
+    "fullscreenchange",
+    () => {
+
+        const button =
+            document.getElementById(
+                "fullscreenButton"
+            );
+
+
+        if (
+            document.fullscreenElement
+        ) {
+
+            button.textContent =
+                "전체화면 종료";
+
+        } else {
+
+            button.textContent =
+                "전체화면";
+
+        }
+
+    }
+);
+
+
+/* =========================
+   시작
+========================= */
+
+updateCount();
+
+
+/* =========================
+   ESC로 수정 모달 닫기
+========================= */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            const modal =
+                document.getElementById(
+                    "editModal"
+                );
+
+
+            if (
+                modal.classList.contains(
+                    "active"
+                )
+            ) {
+
+                closeEditModal();
+
+            }
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
