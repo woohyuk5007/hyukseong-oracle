@@ -21,124 +21,76 @@
 </head>
 <body>
 <section id="askScreen" class="screen active"><div class="container" id="mainContainer">
-<div class="topButtons"><button class="topButton" onclick="openPasswordScreen()">진리 추가 또는 수정하기</button><button class="topButton" id="fullscreenButton" onclick="toggleFullscreen()">전체화면</button></div>
+<div class="topButtons"><button class="topButton" onclick="openPasswordScreen()">좌우명 추가 또는 수정하기</button><button class="topButton" id="fullscreenButton" onclick="toggleFullscreen()">전체화면</button></div>
 <div class="title">혁성에게 물어보세요</div><div class="subtitle">진리를 알려드릴 테니</div>
 <div class="resultBox"><div class="label">REVELATION</div><div id="result">고민이 있다면 질문을 던지십시오.</div></div>
-<button class="askButton" id="askButton" onclick="askHyukseong()">혁성에게 묻기</button>
+<button class="askButton" id="askButton" onclick="askHyukseong()">혁성에게 좌우명 묻기</button>
 <div id="statusMessage"></div>
 <div class="timeControl"><label for="timeSlider">응답 시간：<span id="timeValue">5초</span></label><input type="range" id="timeSlider" min="1" max="10" value="5" step="1"><div class="timeDescription" id="timeDescription">기본 응답 시간입니다.</div></div>
 <div class="count" id="truthCount"></div></div></section>
-<section id="passwordScreen" class="screen"><div class="passwordContainer"><div class="passwordIcon">◆</div><div class="passwordTitle">개발자 인증</div><div class="passwordDescription">진리 관리 화면에 접근하려면<br>개발자 비밀번호를 입력하십시오.</div><input type="password" id="developerPassword" placeholder="개발자 비밀번호" autocomplete="off" onkeydown="handlePasswordKey(event)"><button class="passwordButton" onclick="checkDeveloperPassword()">인증하고 들어가기</button><div id="passwordError" class="passwordError">비밀번호가 올바르지 않습니다.</div><button class="backButton" onclick="backToAskFromPassword()">돌아가기</button></div></section>
-<section id="manageScreen" class="screen"><div class="manageContainer"><div class="manageTitle">진리 관리</div><div class="manageDescription">혁성이 내려줄 진리를 추가하거나 수정하고 삭제할 수 있습니다.</div><div class="addArea"><input type="text" id="newTruth" placeholder="새로운 진리를 입력하십시오." onkeydown="handleNewTruthKey(event)"><button class="addButton" onclick="addTruth()">진리 추가</button></div><div class="truthList" id="truthList"></div><button class="backButton" onclick="backToAsk()">질문 화면으로 돌아가기</button></div></section>
+<section id="passwordScreen" class="screen"><div class="passwordContainer"><div class="passwordIcon">◆</div><div class="passwordTitle">개발자 인증</div><div class="passwordDescription">좌우명 관리 화면에 접근하려면<br>개발자 비밀번호를 입력하십시오.</div><input type="password" id="developerPassword" placeholder="개발자 비밀번호" autocomplete="off" onkeydown="handlePasswordKey(event)"><button class="passwordButton" onclick="checkDeveloperPassword()">인증하고 들어가기</button><div id="passwordError" class="passwordError">비밀번호가 올바르지 않습니다.</div><button class="backButton" onclick="backToAskFromPassword()">돌아가기</button></div></section>
+<section id="manageScreen" class="screen"><div class="manageContainer"><div class="manageTitle">좌우명 관리</div><div class="manageDescription">혁성이 내려줄 진리를 추가하거나 수정하고 삭제할 수 있습니다.</div><div class="addArea"><input type="text" id="newTruth" placeholder="새로운 진리를 입력하십시오." onkeydown="handleNewTruthKey(event)"><button class="addButton" onclick="addTruth()">진리 추가</button></div><div class="truthList" id="truthList"></div><button class="backButton" onclick="backToAsk()">질문 화면으로 돌아가기</button></div></section>
 <div class="modal" id="editModal"><div class="modalContent"><div class="modalTitle">진리 수정</div><textarea id="editInput" placeholder="진리를 입력하십시오."></textarea><div class="modalButtons"><button onclick="closeEditModal()">취소</button><button class="save" onclick="saveEditedTruth()">저장</button></div></div></div>
 <script>
 const defaultSentences = [
-    "고민하지 말고 바로 해",
-    "한번 더 생각해",
-    "오늘은 자중해",
-    "하지 마",
-    "바로 해",
-    "네 생각이 맞는 것 같아",
-    "조금 더 기다려",
-    "지금이 아니면 늦을 수도 있어",
-    "오늘은 움직여",
-    "일단 시작해",
-    "멈추고 생각해",
-    "너무 깊게 생각하지 마",
-    "한 걸음만 내디뎌",
-    "지금은 포기하지 마",
-    "그 선택을 믿어",
-    "다시 한번 확인해",
-    "천천히 결정해",
-    "지금은 때가 아니야",
-    "네가 원하는 대로 해",
-    "다른 방법을 찾아봐",
-    "한번 부딪혀봐",
-    "실패해도 괜찮아",
-    "지금 할 수 있는 것부터 해",
-    "오늘은 쉬어",
-    "내일 다시 생각해",
-    "그건 하지 않는 게 좋아",
-    "조금 더 알아보고 결정해",
-    "네 직감을 믿어",
-    "감정이 가라앉은 뒤 결정해",
-    "너무 서두르지 마",
-    "이번에는 네가 먼저 움직여",
-    "기회가 왔다면 잡아",
-    "놓아줄 때가 됐어",
-    "한번 놓고 생각해봐",
-    "답은 이미 알고 있을지도 몰라",
-    "질문을 바꿔봐",
-    "처음 생각으로 돌아가",
-    "가장 단순한 방법을 선택해",
-    "어려운 길이 항상 옳은 것은 아니야",
-    "쉬운 길이라고 틀린 것도 아니야",
-    "한번 시도해봐",
-    "아직 결정하지 마",
-    "지금은 기다려",
-    "오늘 안에 결정해",
-    "하루만 더 생각해",
-    "너무 많은 의미를 부여하지 마",
-    "그냥 해봐",
-    "일단 해보고 판단해",
-    "네가 책임질 수 있다면 해",
-    "후회할 것 같다면 다시 생각해",
-    "후회하지 않을 선택을 해",
-    "남의 시선은 잠시 내려놔",
-    "다른 사람의 답을 찾지 마",
-    "네가 직접 결정해",
-    "정말 원하는지 스스로 물어봐",
-    "그게 정말 필요한가?",
-    "왜 하려는지 생각해봐",
-    "처음 목적을 잊지 마",
-    "목표를 다시 확인해",
-    "지금 필요한 건 용기야",
-    "지금 필요한 건 인내야",
-    "지금 필요한 건 휴식이야",
-    "지금 필요한 건 냉정함이야",
-    "지금 필요한 건 행동이야",
-    "조금 물러서서 바라봐",
-    "한 발 떨어져 생각해",
-    "반대로 생각해봐",
-    "최악의 경우를 생각해봐",
-    "최선의 경우도 생각해봐",
-    "결과보다 과정을 봐",
-    "오늘의 감정으로 내일을 결정하지 마",
-    "화가 났다면 지금은 결정하지 마",
-    "기분이 좋다고 무조건 해서는 안 돼",
-    "두려워도 해야 할 일이 있어",
-    "두렵다면 이유부터 찾아봐",
-    "확신이 없다면 확인해",
-    "확신이 있다면 움직여",
-    "한번 믿어봐",
-    "의심이 든다면 멈춰",
-    "계속 마음에 걸린다면 이유가 있어",
-    "계속 생각난다면 한번 해봐",
-    "이미 충분히 생각했어",
-    "더 생각해도 답은 같을 거야",
-    "답을 찾기보다 선택해",
-    "완벽할 필요는 없어",
-    "지금의 최선이면 충분해",
-    "작게 시작해",
-    "큰 결정을 작은 단계로 나눠",
-    "한번만 더 도전해",
-    "이번에는 다르게 해봐",
-    "실수에서 답을 찾아",
-    "틀렸다면 인정해",
-    "맞다고 생각한다면 밀고 나가",
-    "필요하다면 돌아가",
-    "끝낼 때는 확실하게 끝내",
-    "시작했다면 끝까지 가봐",
-    "너 자신에게 솔직해져",
-    "네가 원하는 것과 필요한 것을 구분해",
-    "결정은 네가 내려",
-    "답은 행동한 뒤에 보일 수도 있어"
+  "진정한 테토는 시험 대비를 다 끝내고 시험 직전까지 진도를 나간다",
+  "까짓거 해보죠 뭐",
+  "도전이 없으면 성공도 없다",
+  "괜찮아 안죽어",
+  "로쿠데나시 없이는 실패도 성공도 숨쉴자격 또한 없다",
+  "과거의 일은 돌아오지 않지만 미래의 일은 다가온다",
+  "실패는 있지만 의미없는 경험은 없다",
+  "할까말까 고민되면 그냥 해라",
+  "어차피 후회할 거 차라리 한다",
+  "닥치고 해",
+  "쫄?",
+  "에겐?",
+  "이왕하는거 그냥 질러라",
+  "ㅅㅂ 살았죠?",
+  "할꺼면 끝까지 해라",
+  "과거를 바꿀 수는 없지만 오늘의 나로 내일의 우리를 바꿀 수 있다",
+  "내가 건넨 한 마디가 누군가의 세상을 조금 더 따뜻하게 만들 수 있다",
+  "얘야, 인생이란 원래 자기 생각대로 되지 않는 법이란다",
+  "마냥 자기가 하고 싶은 것만 하는 것이 아니라 해야 할 일들도 게을리 하지 않아야 한다",
+  "그대는 운명을 믿소?",
+  "상식에 사로잡히지 마",
+  "난 물러서는건 질색이야",
+  "표현하지 않으면 아무 일도 일어나지 않는다",
+  "뭐라도 결말이 있어야, 새로운 에피소드가 시작될 수 있다",
+  "내가 틀릴 수도 있다",
+  "결말이 어떻든 뭐 어때 그게 내가 앞으로 나아갈 발판인데",
+  "실패의 고통보다 후회의 고통이 더 크다",
+  "덤벼",
+  "버텨",
+  "남자가 한번 뱉은 말은 지켜야지",
+  "너의 인생이 그정도 수준이면 그대로 있어 근데 아니면 움직여",
+  "목표를 잡았으면 그 목표를 조져야지",
+  "멀뚱 멀뚱히 가만히 쳐 있지만 말고 문제에 태클을 걸어!",
+  "니 쪼대로 인생 살거면 차라리 나한테 ㅆㄴ이라고 하지 그래?",
+  "이것도 못 버티는데 어떻게 살아있냐?",
+  "see far 씨팔
+    (멀리 봐라)", 
+  "가만히 있으면 너넨 드라마 엑스트라 n번으로 남는거야",
+  "힘내라",
+  "꼬우면 재벌집 자녀되든지 아니면 쌔가빠지게 노력하고",
+  "여기 일짱 누구야!!"
 ];
 const DEVELOPER_PASSWORD="12341234sd@";
 const DATA_VERSION="100_truths_v2";
 if(localStorage.getItem("hyukseongTruthVersion")!==DATA_VERSION){localStorage.setItem("hyukseongSentences",JSON.stringify(defaultSentences));localStorage.setItem("hyukseongTruthVersion",DATA_VERSION)}
 let sentences=JSON.parse(localStorage.getItem("hyukseongSentences"))||[...defaultSentences];
 let isAsking=false,editingIndex=-1,responseTime=5;
+let recentMottos=[];
+
+function getNextMotto(){
+  if(!sentences.length) return "";
+  const available=sentences.map((_,i)=>i).filter(i=>!recentMottos.includes(i));
+  const pool=available.length ? available : sentences.map((_,i)=>i);
+  const index=pool[Math.floor(Math.random()*pool.length)];
+  recentMottos.push(index);
+  if(recentMottos.length>5) recentMottos.shift();
+  return sentences[index];
+}
 const timeSlider=document.getElementById("timeSlider"),timeValue=document.getElementById("timeValue"),timeDescription=document.getElementById("timeDescription");
 timeSlider.addEventListener("input",()=>{responseTime=Number(timeSlider.value);timeValue.textContent=responseTime+"초";timeDescription.textContent=responseTime<=3?"짧은 시간 동안 빠르게 응답합니다.":responseTime<=6?"혁성이 잠시 생각한 뒤 응답합니다.":responseTime<=8?"혁성이 조금 더 오래 숙고한 뒤 응답합니다.":"혁성이 충분히 숙고한 뒤 응답합니다."});
 function saveSentences(){localStorage.setItem("hyukseongSentences",JSON.stringify(sentences))}
@@ -150,13 +102,13 @@ function checkDeveloperPassword(){if(developerPassword.value===DEVELOPER_PASSWOR
 function handlePasswordKey(e){if(e.key==="Enter")checkDeveloperPassword()}
 function handleNewTruthKey(e){if(e.key==="Enter")addTruth()}
 function renderTruths(){truthList.innerHTML="";sentences.forEach((truth,i)=>{const item=document.createElement("div");item.className="truthItem";item.innerHTML='<div class="truthNumber">'+(i+1)+'</div><div class="truthText"></div><button class="editButton">수정</button><button class="deleteButton">삭제</button>';item.querySelector(".truthText").textContent=truth;item.querySelector(".editButton").onclick=()=>openEditModal(i);item.querySelector(".deleteButton").onclick=()=>deleteTruth(i);truthList.appendChild(item)});updateCount()}
-function addTruth(){const v=newTruth.value.trim();if(!v)return;sentences.push(v);saveSentences();newTruth.value="";renderTruths()}
+function addTruth(){const v=newTruth.value.trim();if(!v)return;sentences.push(v);recentMottos=[];saveSentences();newTruth.value="";renderTruths()}
 function deleteTruth(i){if(confirm("이 진리를 삭제하시겠습니까?")){sentences.splice(i,1);saveSentences();renderTruths()}}
 function openEditModal(i){editingIndex=i;editInput.value=sentences[i];editModal.classList.add("active");editInput.focus()}
 function closeEditModal(){editingIndex=-1;editModal.classList.remove("active")}
-function saveEditedTruth(){const v=editInput.value.trim();if(editingIndex===-1||!v)return;sentences[editingIndex]=v;saveSentences();closeEditModal();renderTruths()}
+function saveEditedTruth(){const v=editInput.value.trim();if(editingIndex===-1||!v)return;sentences[editingIndex]=v;recentMottos=[];saveSentences();closeEditModal();renderTruths()}
 function updateCount(){truthCount.textContent="현재 "+sentences.length+"개의 진리가 준비되어 있습니다."}
-function askHyukseong(){if(isAsking)return;if(!sentences.length){result.textContent="등록된 진리가 없습니다.";return}isAsking=true;const total=responseTime*1000;mainContainer.classList.add("asking");askButton.disabled=true;askButton.textContent="혁성이 응답하고 있습니다";result.classList.remove("revealed");result.classList.add("waiting");result.textContent="혁성에게 묻는 중";statusMessage.classList.add("active");statusMessage.textContent="진리를 탐색하고 있습니다";setTimeout(()=>{result.textContent="응답을 준비하고 있습니다";statusMessage.textContent="응답이 내려옵니다"},total*.27);setTimeout(()=>{result.textContent="잠시 기다리십시오";statusMessage.textContent="혁성의 뜻을 기다리는 중"},total*.53);setTimeout(()=>{result.textContent="진리가 결정되었습니다";statusMessage.textContent="REVELATION"},total*.77);setTimeout(()=>{result.classList.remove("waiting");result.classList.add("revealed");result.textContent=sentences[Math.floor(Math.random()*sentences.length)];mainContainer.classList.remove("asking");askButton.disabled=false;askButton.textContent="혁성에게 묻기";statusMessage.classList.remove("active");isAsking=false},total)}
+function askHyukseong(){if(isAsking)return;if(!sentences.length){result.textContent="등록된 좌우명이 없습니다.";return}isAsking=true;const total=responseTime*1000;mainContainer.classList.add("asking");askButton.disabled=true;askButton.textContent="혁성이 응답하고 있습니다";result.classList.remove("revealed");result.classList.add("waiting");result.textContent="혁성에게 묻는 중";statusMessage.classList.add("active");statusMessage.textContent="좌우명을 탐색하고 있습니다";setTimeout(()=>{result.textContent="응답을 준비하고 있습니다";statusMessage.textContent="응답이 내려옵니다"},total*.27);setTimeout(()=>{result.textContent="잠시 기다리십시오";statusMessage.textContent="혁성의 뜻을 기다리는 중"},total*.53);setTimeout(()=>{result.textContent="좌우명이 결정되었습니다";statusMessage.textContent="REVELATION"},total*.77);setTimeout(()=>{result.classList.remove("waiting");result.classList.add("revealed");result.textContent=getNextMotto();mainContainer.classList.remove("asking");askButton.disabled=false;askButton.textContent="혁성에게 좌우명 묻기";statusMessage.classList.remove("active");isAsking=false},total)}
 function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{})}
 document.addEventListener("fullscreenchange",()=>fullscreenButton.textContent=document.fullscreenElement?"전체화면 종료":"전체화면");
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&editModal.classList.contains("active"))closeEditModal()});
