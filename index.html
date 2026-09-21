@@ -22,15 +22,15 @@
 <body>
 <section id="askScreen" class="screen active"><div class="container" id="mainContainer">
 <div class="topButtons"><button class="topButton" onclick="openPasswordScreen()">좌우명 추가 또는 수정하기</button><button class="topButton" id="fullscreenButton" onclick="toggleFullscreen()">전체화면</button></div>
-<div class="title">혁성에게 물어보세요</div><div class="subtitle">진리를 알려드릴 테니</div>
+<div class="title">혁성에게 물어보세요</div><div class="subtitle">좌우명을 알려드릴 테니</div>
 <div class="resultBox"><div class="label">REVELATION</div><div id="result">고민이 있다면 질문을 던지십시오.</div></div>
 <button class="askButton" id="askButton" onclick="askHyukseong()">혁성에게 좌우명 묻기</button>
 <div id="statusMessage"></div>
 <div class="timeControl"><label for="timeSlider">응답 시간：<span id="timeValue">5초</span></label><input type="range" id="timeSlider" min="1" max="10" value="5" step="1"><div class="timeDescription" id="timeDescription">기본 응답 시간입니다.</div></div>
 <div class="count" id="truthCount"></div></div></section>
 <section id="passwordScreen" class="screen"><div class="passwordContainer"><div class="passwordIcon">◆</div><div class="passwordTitle">개발자 인증</div><div class="passwordDescription">좌우명 관리 화면에 접근하려면<br>개발자 비밀번호를 입력하십시오.</div><input type="password" id="developerPassword" placeholder="개발자 비밀번호" autocomplete="off" onkeydown="handlePasswordKey(event)"><button class="passwordButton" onclick="checkDeveloperPassword()">인증하고 들어가기</button><div id="passwordError" class="passwordError">비밀번호가 올바르지 않습니다.</div><button class="backButton" onclick="backToAskFromPassword()">돌아가기</button></div></section>
-<section id="manageScreen" class="screen"><div class="manageContainer"><div class="manageTitle">좌우명 관리</div><div class="manageDescription">혁성이 내려줄 진리를 추가하거나 수정하고 삭제할 수 있습니다.</div><div class="addArea"><input type="text" id="newTruth" placeholder="새로운 진리를 입력하십시오." onkeydown="handleNewTruthKey(event)"><button class="addButton" onclick="addTruth()">진리 추가</button></div><div class="truthList" id="truthList"></div><button class="backButton" onclick="backToAsk()">질문 화면으로 돌아가기</button></div></section>
-<div class="modal" id="editModal"><div class="modalContent"><div class="modalTitle">진리 수정</div><textarea id="editInput" placeholder="진리를 입력하십시오."></textarea><div class="modalButtons"><button onclick="closeEditModal()">취소</button><button class="save" onclick="saveEditedTruth()">저장</button></div></div></div>
+<section id="manageScreen" class="screen"><div class="manageContainer"><div class="manageTitle">좌우명 관리</div><div class="manageDescription">혁성이 내려줄 좌우명을 추가하거나 수정하고 삭제할 수 있습니다.</div><div class="addArea"><input type="text" id="newTruth" placeholder="새로운 좌우명을 입력하십시오." onkeydown="handleNewTruthKey(event)"><button class="addButton" onclick="addTruth()">좌우명 추가</button></div><div class="truthList" id="truthList"></div><button class="backButton" onclick="backToAsk()">질문 화면으로 돌아가기</button></div></section>
+<div class="modal" id="editModal"><div class="modalContent"><div class="modalTitle">좌우명 수정</div><textarea id="editInput" placeholder="좌우명을 입력하십시오."></textarea><div class="modalButtons"><button onclick="closeEditModal()">취소</button><button class="save" onclick="saveEditedTruth()">저장</button></div></div></div>
 <script>
 const defaultSentences = [
   "진정한 테토는 시험 대비를 다 끝내고 시험 직전까지 진도를 나간다",
@@ -68,17 +68,16 @@ const defaultSentences = [
   "멀뚱 멀뚱히 가만히 쳐 있지만 말고 문제에 태클을 걸어!",
   "니 쪼대로 인생 살거면 차라리 나한테 ㅆㄴ이라고 하지 그래?",
   "이것도 못 버티는데 어떻게 살아있냐?",
-  "see far 씨팔
-    (멀리 봐라)", 
+  "see far 씨팔\n(멀리 봐라)",
   "가만히 있으면 너넨 드라마 엑스트라 n번으로 남는거야",
   "힘내라",
   "꼬우면 재벌집 자녀되든지 아니면 쌔가빠지게 노력하고",
   "여기 일짱 누구야!!"
 ];
 const DEVELOPER_PASSWORD="12341234sd@";
-const DATA_VERSION="100_truths_v2";
+const DATA_VERSION="mottos_v4_40";
 if(localStorage.getItem("hyukseongTruthVersion")!==DATA_VERSION){localStorage.setItem("hyukseongSentences",JSON.stringify(defaultSentences));localStorage.setItem("hyukseongTruthVersion",DATA_VERSION)}
-let sentences=JSON.parse(localStorage.getItem("hyukseongSentences"))||[...defaultSentences];
+let sentences;try{sentences=JSON.parse(localStorage.getItem("hyukseongSentences"))||[...defaultSentences];if(!Array.isArray(sentences))sentences=[...defaultSentences]}catch(e){sentences=[...defaultSentences]}
 let isAsking=false,editingIndex=-1,responseTime=5;
 let recentMottos=[];
 
@@ -103,11 +102,11 @@ function handlePasswordKey(e){if(e.key==="Enter")checkDeveloperPassword()}
 function handleNewTruthKey(e){if(e.key==="Enter")addTruth()}
 function renderTruths(){truthList.innerHTML="";sentences.forEach((truth,i)=>{const item=document.createElement("div");item.className="truthItem";item.innerHTML='<div class="truthNumber">'+(i+1)+'</div><div class="truthText"></div><button class="editButton">수정</button><button class="deleteButton">삭제</button>';item.querySelector(".truthText").textContent=truth;item.querySelector(".editButton").onclick=()=>openEditModal(i);item.querySelector(".deleteButton").onclick=()=>deleteTruth(i);truthList.appendChild(item)});updateCount()}
 function addTruth(){const v=newTruth.value.trim();if(!v)return;sentences.push(v);recentMottos=[];saveSentences();newTruth.value="";renderTruths()}
-function deleteTruth(i){if(confirm("이 진리를 삭제하시겠습니까?")){sentences.splice(i,1);saveSentences();renderTruths()}}
+function deleteTruth(i){if(confirm("이 좌우명을 삭제하시겠습니까?")){sentences.splice(i,1);recentMottos=[];saveSentences();renderTruths()}}
 function openEditModal(i){editingIndex=i;editInput.value=sentences[i];editModal.classList.add("active");editInput.focus()}
 function closeEditModal(){editingIndex=-1;editModal.classList.remove("active")}
 function saveEditedTruth(){const v=editInput.value.trim();if(editingIndex===-1||!v)return;sentences[editingIndex]=v;recentMottos=[];saveSentences();closeEditModal();renderTruths()}
-function updateCount(){truthCount.textContent="현재 "+sentences.length+"개의 진리가 준비되어 있습니다."}
+function updateCount(){truthCount.textContent="현재 "+sentences.length+"개의 좌우명이 준비되어 있습니다."}
 function askHyukseong(){if(isAsking)return;if(!sentences.length){result.textContent="등록된 좌우명이 없습니다.";return}isAsking=true;const total=responseTime*1000;mainContainer.classList.add("asking");askButton.disabled=true;askButton.textContent="혁성이 응답하고 있습니다";result.classList.remove("revealed");result.classList.add("waiting");result.textContent="혁성에게 묻는 중";statusMessage.classList.add("active");statusMessage.textContent="좌우명을 탐색하고 있습니다";setTimeout(()=>{result.textContent="응답을 준비하고 있습니다";statusMessage.textContent="응답이 내려옵니다"},total*.27);setTimeout(()=>{result.textContent="잠시 기다리십시오";statusMessage.textContent="혁성의 뜻을 기다리는 중"},total*.53);setTimeout(()=>{result.textContent="좌우명이 결정되었습니다";statusMessage.textContent="REVELATION"},total*.77);setTimeout(()=>{result.classList.remove("waiting");result.classList.add("revealed");result.textContent=getNextMotto();mainContainer.classList.remove("asking");askButton.disabled=false;askButton.textContent="혁성에게 좌우명 묻기";statusMessage.classList.remove("active");isAsking=false},total)}
 function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{})}
 document.addEventListener("fullscreenchange",()=>fullscreenButton.textContent=document.fullscreenElement?"전체화면 종료":"전체화면");
